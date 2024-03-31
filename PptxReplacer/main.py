@@ -52,7 +52,7 @@ def generate(file: dict):
     
     prs = Presentation('template/file/20240117_setneg_biweekly.pptx')
 
-    # menambahkan shape
+    ## menambahkan shape
     data = file['result']
     percentage1 = data['sna']['clusters'][0]['percentage']
     label1 = data['sna']['clusters'][0]['label']
@@ -75,8 +75,8 @@ def generate(file: dict):
     rgb_color2 = hex_to_rgb(color2)
     rgb_color3 = hex_to_rgb(color3)
 
-    # shape 1
     # menambahkan shape ke slide
+    # shape 1
     rect = slide.shapes.add_shape(
         MSO_SHAPE.ROUNDED_RECTANGLE,    # Jenis shape (rounded rectangle)
         Cm(0.72), Cm(9.56),             # Koordinat x, y (dalam sentimeter)
@@ -128,10 +128,11 @@ def generate(file: dict):
     p.font.size = Pt(11)
 
 
-    # menambahkan text box
+    ## menambahkan text box
     summary3 = data['sna']['clusters'][2]
     summary_text = summary3['summary'][0]
     slide = prs.slides[3] 
+
 
     # Tentukan posisi dan ukuran kotak teks
     left_inch = Inches(10)
@@ -139,15 +140,16 @@ def generate(file: dict):
     width_inch = Inches(3.25)
     height_inch = Inches(2)
 
+
     # Tambahkan text box ke slide
     text_box = slide.shapes.add_textbox(left_inch, top_inch, width_inch, height_inch)
-
     text_frame = text_box.text_frame
+
 
     # Tambahkan teks ke dalam text box
     p = text_frame.add_paragraph()
     p.text = summary_text
-    # Atur auto size dan non-word wrap
+    # mengatur size dan word wrap
     text_frame.auto_size = MSO_AUTO_SIZE.NONE
     text_frame.word_wrap = True
 
@@ -159,10 +161,9 @@ def generate(file: dict):
     p.font.size = Pt(11)
 
 
-    # menghapus shape yang tidak di perlukan
+    ## menghapus shape yang tidak di perlukan
     slide_index = 3 
     slide = prs.slides[slide_index]
-
     shapes_to_delete = [9, 8, 7, 6]  
 
     # Hapus bentuk (shape) dari slide
@@ -170,7 +171,7 @@ def generate(file: dict):
         slide.shapes[shape_index]._element.getparent().remove(slide.shapes[shape_index]._element)
 
 
-    # mereplace chart
+    ## mereplace chart
     data = file['result']['each_day_count']
     dates = []
     counts = []
@@ -205,7 +206,7 @@ def generate(file: dict):
 
     image = Image.open(io.BytesIO(binary_dataper1))
 
-    # menyimpan gambar dalam format PNG
+    ## menyimpan gambar dalam format PNG
     save_percakapan1 = ('assets/percakapan1.png')
     image.save(save_percakapan1)
     image.close()
@@ -246,7 +247,7 @@ def generate(file: dict):
     img_shape_indexes = [9, 7, 6, 4, 5, 8]  # Ganti dengan indeks gambar yang diinginkan di slide tersebut
 
     # menentukan indeks slide yang ingin diperbarui
-    slide_index = 2  # Ganti dengan indeks slide yang diinginkan
+    slide_index = 2 
 
     # Iterasi melalui daftar gambar baru dan indeks gambar di slide
     for new_image_path, img_shape_index in zip(new_image_paths, img_shape_indexes):
