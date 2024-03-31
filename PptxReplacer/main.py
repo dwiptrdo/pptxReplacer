@@ -297,8 +297,8 @@ def generate(file: dict):
     data = file['result']
     data_ikn = file['result']['topic']
 
-    total_twiter = data["platform_count"][0]["twitter"]["total"]
-    percentage_twiter = data["platform_count"][0]["twitter"]["percentage"]
+    total_twitter = data["platform_count"][0]["twitter"]["total"]
+    percentage_twitter = data["platform_count"][0]["twitter"]["percentage"]
 
 
     total_fb = data["platform_count"][3]["facebook"]["total"]
@@ -337,7 +337,7 @@ def generate(file: dict):
         ('Kelompok pro IKN aktif angkat keberhasilan Jokowi mendapat investasi 7 triliun setelah mengadakan kunjungan ke ASEAN, terutama dari Brunei.', data['sna']['summary'][0]),
         ('Kelompok kontra IKN masih terus menyindir IKN karena menunjukkan sikap pemerintah yang hanya ingin menguntungkan diri sendiri, bukan pro rakyat.', data['sna']['summary'][1]),
         ('Kontra IKN juga angkat isu adanya investor IKN yang keluar dari konsorsium.', data['sna']['summary'][2]),
-        ('26.951 Data (74%)', f'{total_twiter} Data ({percentage_twiter * 100}%)'),
+        ('26.951 Data (74%)', f'{total_twitter} Data ({percentage_twitter * 100}%)'),
         ('586 Data (1.6%)', f'{total_fb} Data ({percentage_fb * 100}%)'),
         ('7.351 Data (20%)', f'{total_youtube} Data ({percentage_youtube * 100}%)'),
         ('726 Data (1.99%)', f'{total_instagram} Data ({percentage_instagram * 100}%)'),
