@@ -1,6 +1,11 @@
 from fastapi.responses import FileResponse
 from python_pptx_text_replacer import TextReplacer
+from pptx.enum.text import MSO_AUTO_SIZE
+from pptx.enum.shapes import MSO_SHAPE 
 from pptx.chart.data import CategoryChartData
+from pptx.dml.color import RGBColor      
+from pptx.util import Cm,Pt  
+from pptx.util import Inches
 from pptx import Presentation
 from fastapi import FastAPI
 from pptx.parts.image import Image as PptImage
@@ -29,6 +34,17 @@ def replace_chart_with_data(slide, chart_index, chart_data):
     print(f"Chart with index {chart_index} not found on the specified slide.")
 
 
+# fungsi untuk mengkonversi warna yang ada di dalam data
+def hex_to_rgb(hex_color):
+    # Hapus tanda pagar (#) jika ada
+    hex_color = hex_color.lstrip('#')
+    # Konversi string heksadesimal menjadi nilai RGB
+    r = int(hex_color[0:2], 16)
+    g = int(hex_color[2:4], 16)
+    b = int(hex_color[4:6], 16)
+    return (r, g, b)
+
+
 
 # Endpoint untuk generate
 @app.post("/generate")
@@ -36,8 +52,125 @@ def generate(file: dict):
     
     prs = Presentation('template/file/20240117_setneg_biweekly.pptx')
 
+    # menambahkan shape
+    data = file['result']
+    percentage1 = data['sna']['clusters'][0]['percentage']
+    label1 = data['sna']['clusters'][0]['label']
+
+    percentage2 = data['sna']['clusters'][1]['percentage']
+    label2 = data['sna']['clusters'][1]['label']
+
+    percentage3 = data['sna']['clusters'][2]['percentage']
+    label3 = data['sna']['clusters'][2]['label']
+
+    nomor_slide = 3
+    slide = prs.slides[nomor_slide]
+
+    # untuk mengatur warna yang sesuai untuk shape
+    color1 = data['sna']['clusters'][0]['color']
+    color2 = data['sna']['clusters'][1]['color']
+    color3 = data['sna']['clusters'][2]['color']
+
+    rgb_color1 = hex_to_rgb(color1)
+    rgb_color2 = hex_to_rgb(color2)
+    rgb_color3 = hex_to_rgb(color3)
+
+    # shape 1
+    # menambahkan shape ke slide
+    rect = slide.shapes.add_shape(
+        MSO_SHAPE.ROUNDED_RECTANGLE,    # Jenis shape (rounded rectangle)
+        Cm(0.72), Cm(9.56),             # Koordinat x, y (dalam sentimeter)
+        Cm(5), Cm(1.3))                 # Lebar dan tinggi (dalam sentimeter)
+
+    # Atur warna isi bentuk
+    rect.fill.solid()
+    rect.fill.fore_color.rgb = RGBColor(*rgb_color2) # mengatur warna shape
+
+    # Atur teks di dalam shape
+    text_frame = rect.text_frame
+    p = text_frame.paragraphs[0]
+    p.text = f'{label2} ({percentage2:.1f}%)'  # Teks yang ingin ditampilkan
+    p.font.color.rgb = RGBColor(255, 255, 255)
+    p.font.bold = True
+    p.font.size = Pt(11)
 
 
+    # shape 2
+    rect = slide.shapes.add_shape(
+        MSO_SHAPE.ROUNDED_RECTANGLE,    
+        Cm(25.33), Cm(1.8),             
+        Cm(5), Cm(1.3))                 
+
+    rect.fill.solid()
+    rect.fill.fore_color.rgb = RGBColor(*rgb_color1) 
+
+    text_frame = rect.text_frame
+    p = text_frame.paragraphs[0]
+    p.text = f'{label1} ({percentage1:.1f}%)' 
+    p.font.color.rgb = RGBColor(255, 255, 255)
+    p.font.bold = True
+    p.font.size = Pt(11)
+
+    # shape 3
+    rect = slide.shapes.add_shape(
+        MSO_SHAPE.ROUNDED_RECTANGLE,   
+        Cm(25.33), Cm(14.3),           
+        Cm(5), Cm(1.3))                
+
+    rect.fill.solid()
+    rect.fill.fore_color.rgb = RGBColor(*rgb_color3) 
+
+    text_frame = rect.text_frame
+    p = text_frame.paragraphs[0]
+    p.text = f'{label3} ({percentage3:.1f}%)' 
+    p.font.color.rgb = RGBColor(255, 255, 255)
+    p.font.bold = True
+    p.font.size = Pt(11)
+
+
+    # menambahkan text box
+    summary3 = data['sna']['clusters'][2]
+    summary_text = summary3['summary'][0]
+    slide = prs.slides[3] 
+
+    # Tentukan posisi dan ukuran kotak teks
+    left_inch = Inches(10)
+    top_inch = Inches(5.88)
+    width_inch = Inches(3.25)
+    height_inch = Inches(2)
+
+    # Tambahkan text box ke slide
+    text_box = slide.shapes.add_textbox(left_inch, top_inch, width_inch, height_inch)
+
+    text_frame = text_box.text_frame
+
+    # Tambahkan teks ke dalam text box
+    p = text_frame.add_paragraph()
+    p.text = summary_text
+    # Atur auto size dan non-word wrap
+    text_frame.auto_size = MSO_AUTO_SIZE.NONE
+    text_frame.word_wrap = True
+
+    # Atur warna teks
+    for run in p.runs:
+        run.font.color.rgb = RGBColor(255, 255, 255)
+
+    # Atur ukuran font teks
+    p.font.size = Pt(11)
+
+
+    # menghapus shape yang tidak di perlukan
+    slide_index = 3 
+    slide = prs.slides[slide_index]
+
+    shapes_to_delete = [9, 8, 7, 6]  
+
+    # Hapus bentuk (shape) dari slide
+    for shape_index in shapes_to_delete:
+        slide.shapes[shape_index]._element.getparent().remove(slide.shapes[shape_index]._element)
+
+
+    # mereplace chart
     data = file['result']['each_day_count']
     dates = []
     counts = []
@@ -183,9 +316,8 @@ def generate(file: dict):
     percentage_tiktok = data["platform_count"][4]["tiktok"]["percentage"]
 
 
-    pro_percentage = data['sna']['clusters'][0]['percentage']
-
-    pro_summary = data['sna']['clusters'][0]
+    summary1 = data['sna']['clusters'][0]
+    summary2 = data['sna']['clusters'][1]
 
     replacer = TextReplacer(save_file, slides='', tables=True, charts=False, textframes=True)
 
@@ -209,12 +341,17 @@ def generate(file: dict):
         ('7.351 Data (20%)', f'{total_youtube} Data ({percentage_youtube * 100}%)'),
         ('726 Data (1.99%)', f'{total_instagram} Data ({percentage_instagram * 100}%)'),
         ('729 Data (2%)', f'{total_tiktok} Data ({percentage_tiktok * 100}%)'),
-        ('25.6%', f'{pro_percentage:.1f}%'),
-        ('Kelompok ini cenderung merupakan akun-akun pro pemerintah dan pro Prabowo.', pro_summary['summary'][0]),
-        ('Kelompok ini angkat keberhasilan pemerintah mendapat investasi 7 Triliun setelah kunjungan ke negara-negara Asean.', pro_summary['summary'][1]),
-        ('Kelompok pro Prabowo kritik Anies yang dianggap sikapnya kini mulai tidak konsisten terhadap IKN yang sebelumnya aktif menolak.', pro_summary['summary'][2]),
-        ('Kelompok ini klarifikasi isu adanya investor yang mundur dari IKN.', pro_summary['summary'][3]),
-        ('Kelompok ini menunjukkan dampak positif IKN terhadap daerah sekitarnya yang akan ikut maju.', pro_summary['summary'][4])
+        ('Kelompok ini cenderung merupakan akun-akun pro pemerintah dan pro Prabowo.', summary2['summary'][0]),
+        ('Kelompok ini angkat keberhasilan pemerintah mendapat investasi 7 Triliun setelah kunjungan ke negara-negara Asean.', summary2['summary'][1]),
+        ('Kelompok pro Prabowo kritik Anies yang dianggap sikapnya kini mulai tidak konsisten terhadap IKN yang sebelumnya aktif menolak.', summary2['summary'][2]),
+        ('Kelompok ini klarifikasi isu adanya investor yang mundur dari IKN.', summary2['summary'][3]),
+        ('Kelompok ini menunjukkan dampak positif IKN terhadap daerah sekitarnya yang akan ikut maju.', ''),
+        ('Kelompok kontra cenderung lebih banyak dari pendukung Anies.', summary1['summary'][0]),
+        ('Kelompok ini terus mengkritik proyek IKN yang disebut terus menyedot uang negara hingga triliunan, sehingga anggaran tidak digunakan untuk memperhatikan rakyat.', summary1['summary'][1]),
+        ('Jokowi dikritik “menjadi jubir Prabowo” untuk membela masalah kritik netizen terhadap kesejahteraan TNI dibandingkan dengan pembangunan IKN.', summary1['summary'][2]),
+        ('Kelompok ini viralkan adanya penghentian pengerjaan pipa air oleh pemilik lahan di IKN karena mengaku belum mendapat bayaran dari Pemerintah.', summary1['summary'][3]),
+        ('Pendukung Anies secara khusus menyindir Gibran dan Jokowi yang sebelumnya menyebut sudah memiliki investor, namun ternyata ditinggalkan oleh Djarum dan Wings Group.', summary1['summary'][4]),
+        ('Muncul sikap bila Jakarta punya masalah, selesaikan, bukan pindah ke IKN.', summary1['summary'][5])
     ])
 
     file_output = "result/20240117_setneg_biweekly.pptx"

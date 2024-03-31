@@ -101,6 +101,7 @@
           "id":"1",
           "count":47,
           "percentage":24.227,
+          "color": "#6e7aca",
           "summary":[
             "Kelompok ini membahas potensi pembangunan Sumber Daya Manusia (SDM) sebagai prioritas Ganjar Pranowo-Prof Mahfud dalam IKN.",
             "Mereka menyoroti pentingnya melanjutkan Indonesia Sentris dalam IKN sebagai langkah maju untuk kemajuan di seluruh Nusantara.",
@@ -117,6 +118,7 @@
           "id":"2",
           "count":37,
           "percentage":19.072,
+          "color": "#5bc344",
           "summary":[
             "Kelompok ini membahas proyek Infrastruktur Kota (IKN) yang sedang dikerjakan oleh Kementerian PUPR, dengan kemajuan proyek mencapai 70%.",
             "Kelompok ini menyoroti pentingnya simbol-simbol tertentu bagi para penguasa dan kroni mereka untuk kembali ke jalan yang benar.",
@@ -129,6 +131,7 @@
           "id":"0",
           "count":30,
           "percentage":15.464,
+          "color": "#d64e2b",
           "summary":[
             "Kelompok ini membahas topik-topik yang berkaitan dengan IKN Nusantara dan dampaknya terhadap investasi pasca Pemilu 20Beberapa konten menyebutkan minat investor yang meningkat dan sentimen positif terhadap investasi di IKN. Namun, tidak ada konten yang secara jelas menjelaskan detail atau argumen spesifik mengenai IKN Nusantara."
           ],
